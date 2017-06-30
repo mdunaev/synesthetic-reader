@@ -1,0 +1,25 @@
+{
+  "name": "synesthetic-reader",
+  "version": "0.1.0",
+  "main": "js/index.js",
+  "scripts": {
+    "start": "webpack --watch",
+    "server": "python server.py"
+  },
+  "author": "Mikhail Dunaev https://github.com/mdunaev",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.1",
+    "webpack": "1.14.0"
+  },
+  "dependencies": {
+    "babel-preset-env": "^1.2.2",
+    "js-cookie": "^2.1.4",
+    "kefir": "^3.7.1",
+    "webpack-preset": "^0.2.0",
+    "webpack-preset-babel": "^0.2.0",
+    "webpack-preset-babel-react": "^0.2.0",
+    "whatwg-fetch": "^2.0.3"
+  }
+}
