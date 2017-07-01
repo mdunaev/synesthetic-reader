@@ -1,4 +1,4 @@
-# Synestetic Reader :ru:
+# Synestetic Reader
 Синестетический ридер для книг. 
 [Статья](https://habrahabr.ru/post/207656/) на Хабрахабр объясняющая принцип работы. 
 
