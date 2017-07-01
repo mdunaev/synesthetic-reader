@@ -63,10 +63,14 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var settings = {
+	    pageSize: 30,
+	    learnSpeed: 10
+	};
+
 	var _s = function _s(selector) {
 	    return document.querySelector(selector);
 	};
-	var pageSize = 20;
 	var pageEl = _s(".page");
 	var prevButton = _s(".prev");
 	var nextButton = _s(".next");
@@ -74,21 +78,29 @@
 	    return r.text();
 	});
 	var book = [];
+	var pageNum;
 
 	var getPageNum = function getPageNum() {
-	    return parseInt(_jsCookie2.default.get("synPageNum")) || 0;
+	    if (pageNum) return pageNum;
+	    pageNum = parseInt(_jsCookie2.default.get("synPageNum")) || 0;
+	    return pageNum;
 	};
 
 	var setPageNum = function setPageNum(num) {
-	    return _jsCookie2.default.set("synPageNum", num);
+	    pageNum = num;
+	    _jsCookie2.default.set("synPageNum", num);
 	};
 
 	var getPageSentences = function getPageSentences() {
-	    return book.slice(getPageNum() * pageSize, getPageNum() * pageSize + pageSize);
+	    return book.slice(getPageNum() * settings.pageSize, getPageNum() * settings.pageSize + settings.pageSize);
 	};
 
 	var getLetterColor = function getLetterColor(letter) {
 	    return _rules.rusLetters[letter.toLowerCase()];
+	};
+
+	var isLetterVisible = function isLetterVisible(letter) {
+	    return getPageNum() <= _rules.pagesRules[letter.toLowerCase()] * settings.learnSpeed;
 	};
 
 	var getLetterElement = function getLetterElement(letter) {
@@ -100,7 +112,7 @@
 	    var element = document.createElement("span");
 	    var coloredElement = document.createElement("div");
 
-	    element.innerHTML = letter;
+	    element.innerHTML = isLetterVisible(letter) ? letter : "&nbsp;";
 	    element.classList.add("letter");
 
 	    coloredElement.style.backgroundColor = letterColor;
@@ -116,6 +128,7 @@
 	};
 
 	var renderPage = function renderPage() {
+	    pageEl.innerHTML = "";
 	    var sentences = getPageSentences().map(function (sentence) {
 	        sentence = sentence.split("");
 	        sentence.push(".");
@@ -123,12 +136,34 @@
 	    });
 	    var letters = [].concat.apply([], sentences);
 	    letters.map(applyLetter);
+	    updateInfo();
+	    window.scrollTo(0, 0);
 	};
 
-	_kefir2.default.fromPromise(bookRequest).map(function (res) {
-	    book = res.split(".");
-	    return book;
-	}).onValue(renderPage);
+	var switchPage = function switchPage(modificator) {
+	    var pageNum = getPageNum();
+	    var newPageNum = pageNum + modificator;
+	    setPageNum(newPageNum < 0 || newPageNum >= book.length / settings.pageSize ? pageNum : newPageNum);
+	    renderPage();
+	};
+
+	var getPageNumNode = function getPageNumNode(i) {
+	    var el = document.createElement("div");
+	    el.innerHTML = i;
+	    return el;
+	};
+
+	var renderPaginator = function renderPaginator(book) {
+	    var pagesNum = Math.floor(book.length / settings.pageSize);
+	    Array(pagesNum).fill(0).map(function (v, i) {
+	        _s(".paginator").appendChild(getPageNumNode(i));
+	    });
+	};
+
+	var updateInfo = function updateInfo() {
+	    _s(".pageNum").innerHTML = getPageNum();
+	    _s(".totalPages").innerHTML = Math.floor(book.length / settings.pageSize);
+	};
 
 	var prevEvent = _kefir2.default.fromEvents(prevButton, "click").map(function () {
 	    return -1;
@@ -137,15 +172,18 @@
 	    return 1;
 	});
 
-	var switchPage = function switchPage(modificator) {
-	    var pageNum = getPageNum();
-	    var newPageNum = pageNum + modificator;
-	    setPageNum(newPageNum < 0 || newPageNum >= book.length / pageSize ? pageNum : newPageNum);
-	    pageEl.innerHTML = "";
-	    renderPage();
-	};
+	_kefir2.default.fromPromise(bookRequest).map(function (res) {
+	    book = res.split(".");
+	    return book;
+	}).map(renderPaginator).onValue(renderPage);
 
 	_kefir2.default.merge([prevEvent, nextEvent]).onValue(switchPage);
+
+	_kefir2.default.fromEvents(_s(".paginator"), "click").map(function (event) {
+	    return event.target.innerHTML;
+	}).map(parseInt).filter(function (val) {
+	    return !isNaN(val);
+	}).map(setPageNum).onValue(renderPage);
 
 /***/ },
 
