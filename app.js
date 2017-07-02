@@ -82,13 +82,13 @@
 
 	var getPageNum = function getPageNum() {
 	    if (pageNum) return pageNum;
-	    pageNum = parseInt(_jsCookie2.default.get("synPageNum")) || 0;
+	    pageNum = parseInt(localStorage.getItem("synPageNum")) || 0;
 	    return pageNum;
 	};
 
 	var setPageNum = function setPageNum(num) {
 	    pageNum = num;
-	    _jsCookie2.default.set("synPageNum", num);
+	    localStorage.setItem("synPageNum", num);
 	};
 
 	var getPageSentences = function getPageSentences() {

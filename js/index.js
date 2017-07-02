@@ -18,13 +18,13 @@ var pageNum;
 
 const getPageNum = () => {
     if (pageNum) return pageNum;
-    pageNum = parseInt(cookie.get("synPageNum")) || 0;
+    pageNum = parseInt(localStorage.getItem("synPageNum")) || 0;
     return pageNum;
 };
 
 const setPageNum = num => {
     pageNum = num;
-    cookie.set("synPageNum", num)
+    localStorage.setItem("synPageNum", num);
 };
 
 const getPageSentences = () =>
